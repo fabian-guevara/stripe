@@ -1,0 +1,111 @@
+<main>
+  <div class="row justify-content-md-center">
+    <div class="col-12 col-md-8 col-lg-6">
+
+      {{#if error}}
+
+        <div class="mt-40 text-center text-danger">
+          <h1>
+            <i class="fas fa-exclamation-circle"></i>
+            Payment not completed
+          </h1>
+
+          <p class="mt-20 text-secondary">
+            {{error}}
+          </p>
+        </div>
+
+        {{#if paymentIntentId}}
+          <div class="card box-shadow mt-40">
+            <div class="card-body">
+              <div class="text-secondary">
+                Payment Intent ID
+              </div>
+
+              <div class="mt-10">
+                <code>{{paymentIntentId}}</code>
+              </div>
+
+              {{#if paymentStatus}}
+                <div class="mt-20 text-secondary">
+                  Status
+                </div>
+
+                <div class="mt-10">
+                  {{paymentStatus}}
+                </div>
+              {{/if}}
+            </div>
+          </div>
+        {{/if}}
+
+        <div class="mt-40 text-center">
+          <a href="/" class="btn btn-primary">
+            Return to store
+          </a>
+        </div>
+
+      {{else}}
+
+        <div class="mt-40 text-center text-success">
+          <h1>
+            <i class="far fa-check-circle"></i>
+            Payment successful!
+          </h1>
+
+          <p class="mt-20 text-secondary">
+            Thank you for your purchase.
+          </p>
+        </div>
+
+        <div class="card box-shadow mt-40">
+          <div class="card-body">
+
+            <div class="text-center">
+              <div class="text-secondary">
+                Total charged
+              </div>
+
+              <h2 class="mt-10">
+                {{amount}}
+              </h2>
+            </div>
+
+            <hr class="mt-40">
+
+            <div class="mt-20">
+              <div class="text-secondary">
+                Payment Intent ID
+              </div>
+
+              <div class="mt-10">
+                <code style="word-break: break-all;">
+                  {{paymentIntentId}}
+                </code>
+              </div>
+            </div>
+
+            <div class="mt-20">
+              <div class="text-secondary">
+                Status
+              </div>
+
+              <div class="mt-10 text-success">
+                {{paymentStatus}}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="mt-40 text-center">
+          <a href="/" class="btn btn-primary">
+            Continue shopping
+          </a>
+        </div>
+
+      {{/if}}
+
+    </div>
+  </div>
+</main>

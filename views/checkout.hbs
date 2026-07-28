@@ -1,0 +1,207 @@
+<div class="row justify-content-md-center">
+
+  <div class="col-12 col-md-8 col-lg-6">
+
+    <div class="text-center mt-40">
+      <h1>
+        Checkout — Stripe Press
+      </h1>
+
+      <h5 class="text-secondary">
+        {{title}}
+      </h5>
+
+      <hr class="mt-40">
+
+      <div class="mt-20 text-info">
+        Total due:
+        $<span
+          class="amount"
+          data-amount="{{amount}}"
+        ></span>
+      </div>
+    </div>
+
+    <div class="card box-shadow mt-40">
+      <div class="card-body">
+
+        <form
+          id="payment-form"
+          data-publishable-key="{{stripePublishableKey}}"
+          data-client-secret="{{clientSecret}}"
+        >
+
+          <div class="form-group">
+            <label for="email">
+              Email address
+            </label>
+
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              name="email"
+              placeholder="you@email.com"
+              autocomplete="email"
+              required
+            >
+          </div>
+
+          <div class="mt-20">
+            <div id="payment-element">
+              <!-- Stripe mounts the Payment Element here -->
+            </div>
+          </div>
+
+          <div
+            id="payment-message"
+            class="alert alert-danger mt-20"
+            role="alert"
+            style="display: none;"
+          ></div>
+
+          <div class="mt-20">
+            <button
+              id="submit-button"
+              type="submit"
+              class="btn btn-lg btn-block btn-primary"
+            >
+              <span
+                id="button-spinner"
+                class="spinner-border spinner-border-sm mr-2"
+                role="status"
+                aria-hidden="true"
+                style="display: none;"
+              ></span>
+
+              <span id="button-text">
+                Pay
+                $<span
+                  class="amount"
+                  data-amount="{{amount}}"
+                ></span>
+              </span>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('payment-form');
+    const emailInput = document.getElementById('email');
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
+    const buttonSpinner = document.getElementById('button-spinner');
+    const messageElement = document.getElementById('payment-message');
+
+    const publishableKey = form.dataset.publishableKey;
+    const clientSecret = form.dataset.clientSecret;
+
+    if (!publishableKey || !clientSecret) {
+      showMessage(
+        'Stripe could not be initialized. Missing publishable key or client secret.'
+      );
+
+      submitButton.disabled = true;
+      return;
+    }
+
+    const stripe = Stripe(publishableKey);
+
+    const elements = stripe.elements({
+      clientSecret,
+      appearance: {
+        theme: 'stripe'
+      }
+    });
+
+    const paymentElement = elements.create('payment', {
+      layout: 'accordion'
+    });
+
+    paymentElement.mount('#payment-element');
+
+    paymentElement.on('change', function () {
+      hideMessage();
+    });
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      setLoading(true);
+      hideMessage();
+
+      try {
+        const result = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/success`,
+
+            payment_method_data: {
+              billing_details: {
+                email: emailInput.value.trim()
+              }
+            }
+          }
+        });
+
+        /*
+         * On success, Stripe redirects the browser to return_url.
+         * This block is reached only when Stripe returns an immediate
+         * validation or confirmation error.
+         */
+        if (result.error) {
+          showMessage(
+            result.error.message || 'Unable to process your payment.'
+          );
+
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Payment confirmation error:', error);
+
+        showMessage(
+          'An unexpected error occurred while processing your payment.'
+        );
+
+        setLoading(false);
+      }
+    });
+
+    function setLoading(isLoading) {
+      submitButton.disabled = isLoading;
+      buttonSpinner.style.display = isLoading
+        ? 'inline-block'
+        : 'none';
+
+      buttonText.style.opacity = isLoading
+        ? '0.7'
+        : '1';
+    }
+
+    function showMessage(message) {
+      messageElement.textContent = message;
+      messageElement.style.display = 'block';
+    }
+
+    function hideMessage() {
+      messageElement.textContent = '';
+      messageElement.style.display = 'none';
+    }
+  });
+</script>
