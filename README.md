@@ -90,8 +90,8 @@ The Stripe secret key is only used by the server. It is never sent to the browse
 Clone the repository and install the dependencies:
 
 ```bash
-git clone <repository-url>
-cd <repository-folder>
+git clone https://github.com/fabian-guevara/stripe
+cd stripe
 npm install
 ```
 
