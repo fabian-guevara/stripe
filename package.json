@@ -6,7 +6,7 @@
     "start": "node app.js"
   },
   "type":"commonjs",
-  "author": "Matt Mitchell",
+  "author": "Fabian Guevara",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^10.0.0",
